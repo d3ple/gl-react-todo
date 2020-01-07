@@ -1,8 +1,14 @@
 import { computed, decorate, observable, action } from "mobx";
-import UserService from "../services/firebase";
+//("nur@nur.nur", "nurnurnur")
 
 class User {
-  user = null;
+  constructor() {
+    this.user = null;
+  }
+
+  get isAuth() {
+    return !!this.user;
+  }
 
   setUser(user) {
     this.user = user;
@@ -11,5 +17,6 @@ class User {
 
 export default decorate(User, {
   user: observable,
-  fetchTodos: action
+  isAuth: computed,
+  setUser: action
 });

@@ -5,35 +5,28 @@ class Todo {
   constructor(rootStore) {
     this.userStore = rootStore.userStore;
     this.todos = [];
-    this.isLoading = false;
+    this.isFetching = true;
     this.searchQuery = "";
   }
 
+  get todoList() {
+    return this.searchQuery ? this.searchTodos(this.todos) : this.todos;
+  }
+
   get incompletedTodos() {
-    return this.todos.filter(task => !task.isDone);
+    return this.todoList.filter(task => !task.isDone);
   }
 
   get completedTodos() {
-    return this.todos.filter(task => task.isDone);
-  }
-
-  get searchResults() {
-    return this.todos.filter(todo =>
-      todo.title
-        .toString()
-        .toLowerCase()
-        .includes(this.searchQuery)
-    );
-  }
-
-  setSearchQuery(query) {
-    this.searchQuery = query.toString().toLowerCase();
+    return this.todoList.filter(task => task.isDone);
   }
 
   fetchTodos() {
     if (this.userStore.user) {
+      this.isFetching = true;
       TodoService.getUsersTodos(this.userStore.user.uid).then(todos => {
         this.todos = todos;
+        this.isFetching = false;
       });
     }
   }
@@ -41,7 +34,7 @@ class Todo {
   createTodo(todo) {
     return TodoService.addTodo(todo).then(newTodo => {
       newTodo.get().then(data => {
-        this.todos = [...this.todos, { id: data.id, ...data.data() }];
+        this.todos = [{ id: data.id, ...data.data() }, ...this.todos];
       });
       return newTodo;
     });
@@ -66,15 +59,30 @@ class Todo {
       this.todos[todoIndex].title = newText;
     });
   }
+
+  setSearchQuery(query) {
+    this.searchQuery = query.toString().toLowerCase();
+  }
+
+  searchTodos(todos) {
+    return todos.filter(todo =>
+      todo.title
+        .toString()
+        .toLowerCase()
+        .includes(this.searchQuery)
+    );
+  }
 }
 
 export default decorate(Todo, {
   todos: observable,
-  isLoading: observable,
   searchQuery: observable,
-  fetchTodos: action,
-  createTodo: action,
+  isFetching: observable,
+  todoList: computed,
   incompletedTodos: computed,
   completedTodos: computed,
-  searchResults: computed
+  fetchTodos: action,
+  createTodo: action,
+  searchTodos: action,
+  setSearchQuery: action
 });

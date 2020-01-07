@@ -2,20 +2,18 @@ import React, { useState, useEffect } from "react";
 import { inject, observer } from "mobx-react";
 
 import "antd/dist/antd.css";
-import { Layout, Tabs, Input, Radio } from "antd";
-import Todo from "../Todo";
+import { Layout, Tabs, Input, Radio, message } from "antd";
+import TodoList from "../TodoList";
 
 const { Content } = Layout;
 const { TabPane } = Tabs;
 
 const Main = ({ todoStore, userStore }) => {
+  const [isSearchMode, setSearchMode] = useState(false);
+
   useEffect(() => {
     todoStore.fetchTodos();
-  }, [userStore.user]);
-
-  const [searchQuery, setSearchQuery] = useState("");
-  const [isSearchMode, setSearchMode] = useState(false);
-  const [newTodo, setNewTodo] = useState("");
+  }, [todoStore, userStore.user]);
 
   return (
     <Content style={{ padding: "50px 200px", minHeight: "90vh" }}>
@@ -25,22 +23,27 @@ const Main = ({ todoStore, userStore }) => {
           enterButton="Найти"
           size="large"
           onSearch={value => todoStore.setSearchQuery(value)}
-          onChange={event => todoStore.setSearchQuery(event.target.value)}
         />
       ) : (
         <Input.Search
           placeholder="Введите текст"
           enterButton="Создать"
           size="large"
-          onSearch={value => todoStore.createTodo(value)}
-          onChange={event => setNewTodo(event.target.value)}
+          onSearch={value =>
+            todoStore
+              .createTodo(value)
+              .then(() => message.success("Запись добавлена"))
+          }
         />
       )}
 
       <Radio.Group
         style={{ marginTop: "8px", marginBottom: "30px" }}
         value={isSearchMode}
-        onChange={event => setSearchMode(event.target.value)}
+        onChange={event => {
+          setSearchMode(event.target.value);
+          todoStore.setSearchQuery("");
+        }}
       >
         <Radio value={false}>Новая запись</Radio>
         <Radio value={true}>Поиск</Radio>
@@ -48,34 +51,22 @@ const Main = ({ todoStore, userStore }) => {
 
       <Tabs tabPosition="left">
         <TabPane tab="Все записи" key="1">
-          {todoStore.todos.map((todo, index) => (
-            <Todo
-              id={todo.id}
-              text={todo.title}
-              isDone={todo.isDone}
-              key={index + todo.title}
-            />
-          ))}
+          <TodoList
+            isFetching={todoStore.isFetching}
+            list={todoStore.todoList}
+          />
         </TabPane>
-
         <TabPane tab="Несделанные" key="2">
-          {todoStore.incompletedTodos.map((todo, index) => (
-            <Todo
-              text={todo.title}
-              isDone={todo.isDone}
-              key={index + todo.title}
-            />
-          ))}
+          <TodoList
+            isFetching={todoStore.isFetching}
+            list={todoStore.incompletedTodos}
+          />
         </TabPane>
-
         <TabPane tab="Сделанные" key="3">
-          {todoStore.completedTodos.map((todo, index) => (
-            <Todo
-              text={todo.title}
-              isDone={todo.isDone}
-              key={index + todo.title}
-            />
-          ))}
+          <TodoList
+            isFetching={todoStore.isFetching}
+            list={todoStore.completedTodos}
+          />
         </TabPane>
       </Tabs>
     </Content>

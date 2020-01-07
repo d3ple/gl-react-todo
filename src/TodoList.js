@@ -1,35 +1,31 @@
-const SignUpForm = ({firebase}) => {
+import React from "react";
+import { Spin, Skeleton, Alert } from "antd";
+import Todo from "./Todo";
 
-    const handleRegister = () => {
-      firebase
-      .doCreateUserWithEmailAndPassword("nur@nur.nur", "nurnurnur")
-      .then(authUser => {
-        console.log(authUser);
-      })
-      .catch(error => {
-        console.log(error);
-      });
-    }
-  
-    const handleLogin = () => {
-      firebase
-      .doSignInWithEmailAndPassword("nur@nur.nur", "nurnurnur")
-      .then(authUser => {
-        console.log(authUser);
-      })
-      .catch(error => {
-        console.log(error);
-      });
-    }
-  
-    const getUser = () => {
-      const user = firebase.getUser();
-      user && console.log(user);
-    }
-  
-    return(
-      <>
-        <button onClick={firebase.getUsersTodos}>hhhhh</button>
-      </>
-    );
-  }
+const TodoList = ({ isFetching, list }) => {
+  return (
+    <>
+      {isFetching && (
+        <Spin size="large">
+          <Skeleton active />
+        </Spin>
+      )}
+      {!isFetching && !list.length ? (
+        <Alert message="Нет записей" type="info" />
+      ) : (
+        <>
+          {list.map((todo, index) => (
+            <Todo
+              id={todo.id}
+              text={todo.title}
+              isDone={todo.isDone}
+              key={index + todo.title}
+            />
+          ))}
+        </>
+      )}
+    </>
+  );
+};
+
+export default TodoList;

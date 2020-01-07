@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { inject, observer } from "mobx-react";
-import { Button, Card, Row, Col, Icon, Tag, Input } from "antd";
+import { Button, Card, Row, Col, Icon, Tag, Input, message } from "antd";
 
 const Todo = ({ todoStore, text, isDone, id }) => {
   const [newText, setNewText] = useState(text);
@@ -21,7 +21,13 @@ const Todo = ({ todoStore, text, isDone, id }) => {
             <Col>
               {!isDone && (
                 <>
-                  <Button onClick={() => todoStore.markAsDone(id)}>
+                  <Button
+                    onClick={() =>
+                      todoStore
+                        .markAsDone(id)
+                        .then(() => message.success("Сделано!"))
+                    }
+                  >
                     <Icon
                       type="check-circle"
                       style={{ fontSize: 16 }}
@@ -37,7 +43,13 @@ const Todo = ({ todoStore, text, isDone, id }) => {
                   </Button>
                 </>
               )}
-              <Button onClick={() => todoStore.deleteTodo(id)}>
+              <Button
+                onClick={() =>
+                  todoStore
+                    .deleteTodo(id)
+                    .then(() => message.success("Запись удалена"))
+                }
+              >
                 <Icon type="delete" style={{ fontSize: 16 }} theme="twoTone" />
               </Button>
             </Col>
@@ -58,7 +70,9 @@ const Todo = ({ todoStore, text, isDone, id }) => {
               <Button
                 onClick={() => {
                   if (newText) {
-                    todoStore.updateTodo(id, newText);
+                    todoStore
+                      .updateTodo(id, newText)
+                      .then(() => message.success("Запись изменена"));
                     setEditingMode(false);
                   }
                 }}

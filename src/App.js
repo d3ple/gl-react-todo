@@ -6,57 +6,18 @@ import {
   Switch,
   Redirect
 } from "react-router-dom";
-import Todo from "./Todo";
 import HeaderNav from "./HeaderNav";
-import MainPage from "./Pages/Main";
+import MainPage from "./pages/Main";
+import AuthPage from "./pages/Auth";
 
-import firebase from "./services/firebase";
+import AuthService from "./services/firebase";
 
 import "antd/dist/antd.css";
-import {
-  Layout,
-  Menu,
-  Dropdown,
-  Icon,
-  Button,
-  Row,
-  Col,
-  Tabs,
-  Input,
-  Radio,
-  Badge
-} from "antd";
+import { Layout } from "antd";
 
-{
-  /* <FirebaseContext.Consumer>
-          {firebase => <SignUpForm firebase={firebase} />}
-        </FirebaseContext.Consumer> */
-}
-
-const LoginPage = () => {
-  return <div>LoginPage</div>;
-};
-
-const NoMatchPage = () => {
-  return <div>NoMatchPage</div>;
-};
-
-const PrivateRoute = ({ component: Component, ...rest }) => {
-  const user = true;
-
-  return (
-    <Route
-      {...rest}
-      render={props =>
-        user ? <Component {...props} /> : <Redirect to="/login" />
-      }
-    />
-  );
-};
-
-const App = ({userStore}) => {
+const App = ({ userStore }) => {
   useEffect(() => {
-    firebase.auth.onAuthStateChanged(user => {
+    AuthService.auth.onAuthStateChanged(user => {
       userStore.setUser(user);
     });
   }, [userStore]);
@@ -68,7 +29,7 @@ const App = ({userStore}) => {
       <Layout>
         <HeaderNav />
         <Switch>
-          <Route path="/login" component={LoginPage} />
+          <Route path="/login" component={AuthPage} />
           <PrivateRoute path="/" component={MainPage} />
           <Route component={NoMatchPage} />
         </Switch>
@@ -77,6 +38,21 @@ const App = ({userStore}) => {
   );
 };
 
-// export default App;
+const NoMatchPage = () => {
+  return <div>NoMatchPage</div>;
+};
+
+const PrivateRoute = inject("userStore")(
+  observer(({ component: Component, userStore, ...rest }) => {
+    return (
+      <Route
+        {...rest}
+        render={props =>
+          userStore.isAuth ? <Component {...props} /> : <Redirect to="/login" />
+        }
+      />
+    );
+  })
+);
 
 export default new inject("userStore")(observer(App));
