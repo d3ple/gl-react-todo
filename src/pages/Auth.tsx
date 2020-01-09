@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
-import { inject, observer } from "mobx-react";
+import { observer } from "mobx-react";
 import { autorun } from "mobx";
-
-import "antd/dist/antd.css";
-import { Form, Icon, Input, Button, message } from "antd";
+import useStores from "../stores/useStores"
 import AuthService from "../services/firebase";
+import { Form, Icon, Input, Button, message } from "antd";
 
-const Auth = ({ userStore, form }) => {
+const AuthPage = observer(({ form }) => {
+  const { userStore } = useStores();
   const history = useHistory();
 
   useEffect(() => {
@@ -18,9 +18,9 @@ const Auth = ({ userStore, form }) => {
 
   const [isRegisterMode, setRegisterMode] = useState(false);
 
-  const handleLoginSubmit = event => {
+  const handleLoginSubmit = (event: any) => {
     event.preventDefault();
-    form.validateFields((err, values) => {
+    form.validateFields((err: any, values: any) => {
       if (!err) {
         AuthService.signInWithEmailAndPassword(values.email, values.password)
           .then(authUser => {
@@ -33,9 +33,9 @@ const Auth = ({ userStore, form }) => {
     });
   };
 
-  const handleRegisterSubmit = event => {
+  const handleRegisterSubmit = (event: any) => {
     event.preventDefault();
-    form.validateFields((err, values) => {
+    form.validateFields((err: any, values: any) => {
       if (!err) {
         AuthService.createUserWithEmailAndPassword(
           values.email,
@@ -57,7 +57,7 @@ const Auth = ({ userStore, form }) => {
         isRegisterMode ? handleRegisterSubmit(event) : handleLoginSubmit(event);
       }}
       className="login-form"
-      style={{ maxWidth: "300px", margin: "30vh auto" }}
+      style={{ maxWidth: "300px", margin: "31vh auto" }}
     >
       <Form.Item>
         {form.getFieldDecorator("email", {
@@ -109,24 +109,24 @@ const Auth = ({ userStore, form }) => {
             </a>
           </>
         ) : (
-          <>
-            Или{" "}
-            <a
-              href="#register"
-              onClick={event => {
-                event.preventDefault();
-                setRegisterMode(true);
-              }}
-            >
-              зарегистрироваться
+            <>
+              Или{" "}
+              <a
+                href="#register"
+                onClick={event => {
+                  event.preventDefault();
+                  setRegisterMode(true);
+                }}
+              >
+                зарегистрироваться
             </a>
-          </>
-        )}
+            </>
+          )}
       </Form.Item>
     </Form>
   );
-};
+});
 
-const WrappedNormalLoginForm = Form.create({})(Auth);
+const AuthPageWithForm = Form.create({})(AuthPage);
 
-export default new inject("userStore")(observer(WrappedNormalLoginForm));
+export default AuthPageWithForm;

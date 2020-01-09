@@ -13,19 +13,22 @@ const config = {
 };
 
 class Firebase {
+  auth: app.auth.Auth;
+  db: app.firestore.Firestore;
+
   constructor() {
     app.initializeApp(config);
     this.auth = app.auth();
     this.db = app.firestore();
   }
 
-  getUsersTodos = userUid => {
+  getUsersTodos = (userUid: string) => {
     return this.db
       .collection("todos")
       .where("user", "==", userUid)
       .get()
       .then(querySnapshot => {
-        let todos = [];
+        let todos: any[] = [];
         querySnapshot.forEach(doc => {
           todos.push({ id: doc.id, ...doc.data() });
         });
@@ -36,13 +39,13 @@ class Firebase {
       });
   };
 
-  addTodo = title => {
+  addTodo = (title: string) => {
     return this.db
       .collection("todos")
       .add({
         title: title,
         isDone: false,
-        user: this.auth.currentUser.uid
+        user: this.auth.currentUser && this.auth.currentUser.uid
       })
       .then(function(docRef) {
         return docRef;
@@ -52,7 +55,7 @@ class Firebase {
       });
   };
 
-  markAsDone = id => {
+  markAsDone = (id: string) => {
     return this.db
       .collection("todos")
       .doc(id)
@@ -67,7 +70,7 @@ class Firebase {
       });
   };
 
-  updateTodo = (id, newText) => {
+  updateTodo = (id: string, newText: string) => {
     return this.db
       .collection("todos")
       .doc(id)
@@ -82,7 +85,7 @@ class Firebase {
       });
   };
 
-  deleteTodo = id => {
+  deleteTodo = (id: string) => {
     return this.db
       .collection("todos")
       .doc(id)
@@ -101,17 +104,17 @@ class Firebase {
     });
   };
 
-  createUserWithEmailAndPassword = (email, password) =>
+  createUserWithEmailAndPassword = (email: string, password: string) =>
     this.auth.createUserWithEmailAndPassword(email, password);
 
-  signInWithEmailAndPassword = (email, password) =>
+  signInWithEmailAndPassword = (email: string, password: string) =>
     this.auth.signInWithEmailAndPassword(email, password);
 
   signOut = () => this.auth.signOut();
 
-  resetPass = email => this.auth.sendPasswordResetEmail(email);
+  resetPass = (email: string) => this.auth.sendPasswordResetEmail(email);
 
-  updatePass = password => this.auth.currentUser.updatePassword(password);
+  updatePass = (password: string) => this.auth.currentUser && this.auth.currentUser.updatePassword(password);
 }
 
 export default new Firebase();

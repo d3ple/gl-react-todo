@@ -1,8 +1,10 @@
 import React, { useState } from "react";
-import { inject, observer } from "mobx-react";
+import { observer } from "mobx-react";
+import useStores from "./stores/useStores"
 import { Button, Card, Row, Col, Icon, Tag, Input, message } from "antd";
 
-const Todo = ({ todoStore, text, isDone, id }) => {
+const Todo = observer(({ text, isDone, id }) => {
+  const { todoStore } = useStores();
   const [newText, setNewText] = useState(text);
   const [isEditingMode, setEditingMode] = useState(false);
 
@@ -85,8 +87,6 @@ const Todo = ({ todoStore, text, isDone, id }) => {
       </Card>
     </>
   );
-};
+});
 
-// export default Todo;
-
-export default new inject("todoStore")(observer(Todo));
+export default Todo;

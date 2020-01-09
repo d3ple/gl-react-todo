@@ -2,7 +2,10 @@ import React from "react";
 import { Spin, Skeleton, Alert } from "antd";
 import Todo from "./Todo";
 
-const TodoList = ({ isFetching, list }) => {
+const TodoList: React.FC<{
+  isFetching: boolean;
+  list: any[];
+}> = ({ isFetching, list }) => {
   return (
     <>
       {isFetching && (
@@ -13,17 +16,17 @@ const TodoList = ({ isFetching, list }) => {
       {!isFetching && !list.length ? (
         <Alert message="Нет записей" type="info" />
       ) : (
-        <>
-          {list.map((todo, index) => (
-            <Todo
-              id={todo.id}
-              text={todo.title}
-              isDone={todo.isDone}
-              key={index + todo.title}
-            />
-          ))}
-        </>
-      )}
+          <>
+            {list.map((todo, index) => (
+              <Todo
+                id={todo.id}
+                text={todo.title}
+                isDone={todo.isDone}
+                key={index + todo.title}
+              />
+            ))}
+          </>
+        )}
     </>
   );
 };

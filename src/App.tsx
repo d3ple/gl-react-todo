@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
-import { inject, observer } from "mobx-react";
+import { observer } from "mobx-react";
+import useStores from "./stores/useStores";
 import {
   BrowserRouter as Router,
   Route,
@@ -15,14 +16,30 @@ import AuthService from "./services/firebase";
 import "antd/dist/antd.css";
 import { Layout } from "antd";
 
-const App = ({ userStore }) => {
+const NoMatchPage = () => {
+  return <div>Такой страницы не существует</div>;
+};
+
+const PrivateRoute = observer(({ component: Component, ...rest }) => {
+  const { userStore } = useStores();
+  return (
+    <Route
+      {...rest}
+      render={props =>
+        userStore.isAuth ? <Component {...props} /> : <Redirect to="/login" />
+      }
+    />
+  );
+});
+
+const App = observer(() => {
+  const { userStore } = useStores();
+
   useEffect(() => {
     AuthService.auth.onAuthStateChanged(user => {
       userStore.setUser(user);
     });
   }, [userStore]);
-
-  console.log("App");
 
   return (
     <Router>
@@ -36,23 +53,6 @@ const App = ({ userStore }) => {
       </Layout>
     </Router>
   );
-};
+});
 
-const NoMatchPage = () => {
-  return <div>NoMatchPage</div>;
-};
-
-const PrivateRoute = inject("userStore")(
-  observer(({ component: Component, userStore, ...rest }) => {
-    return (
-      <Route
-        {...rest}
-        render={props =>
-          userStore.isAuth ? <Component {...props} /> : <Redirect to="/login" />
-        }
-      />
-    );
-  })
-);
-
-export default new inject("userStore")(observer(App));
+export default App;

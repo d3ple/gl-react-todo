@@ -3,16 +3,14 @@ import ReactDOM from "react-dom";
 import App from "./App";
 import * as serviceWorker from "./serviceWorker";
 
-import {Provider} from "mobx-react";
+import { Provider } from "mobx-react";
 import stores from "./stores"
 
 
 ReactDOM.render(
-  // <FirebaseContext.Provider value={new Firebase()}>
   <Provider {...stores}>
     <App />
   </Provider>,
-  // </FirebaseContext.Provider>,
   document.getElementById("root")
 );
 
