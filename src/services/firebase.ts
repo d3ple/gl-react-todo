@@ -2,15 +2,9 @@ import app from "firebase/app";
 import "firebase/auth";
 import "firebase/firestore";
 
-const config = {
-  apiKey: "AIzaSyCGyG1eDtpPU2QLokJCmlHwZCSlBlz6vsE",
-  authDomain: "gl-react-todo.firebaseapp.com",
-  databaseURL: "https://gl-react-todo.firebaseio.com",
-  projectId: "gl-react-todo",
-  storageBucket: "gl-react-todo.appspot.com",
-  messagingSenderId: "985271249946",
-  appId: "1:985271249946:web:c6156d94be2e77bd4ef5a3"
-};
+const config = { 
+  //
+ };
 
 class Firebase {
   auth: app.auth.Auth;
